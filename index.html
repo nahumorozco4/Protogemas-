@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0d1420">
+  <title>Genshin Impact Tracker</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d1420">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" href="icons/icon-192.png">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Genshin Impact Tracker</h1>
+      <p>Proyecto de ahorro • Control dinámico</p>
+    </header>
+
+    <div class="target">
+      <div class="target-name">⚡ <span id="target-name">TSARITZA</span></div>
+      <div class="target-date" id="target-date">—</div>
+    </div>
+
+    <main class="content">
+      <section class="stats">
+        <div class="stat">
+          <div class="label">💎 Protogemas actuales</div>
+          <div class="value gold" id="protos">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">🎟️ Deseos</div>
+          <div class="value blue" id="wishes">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">⭐ Pity</div>
+          <div class="value" id="pity">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">🎲 Próximo 5★</div>
+          <div class="value" id="fifty">50/50</div>
+        </div>
+        <div class="stat full">
+          <div class="label">💰 Ahorro equivalente</div>
+          <div class="value green" id="total-wishes">0 deseos</div>
+        </div>
+      </section>
+
+      <section class="progress-section">
+        <div class="progress-top">
+          <span id="progress-goal-label">Progreso hacia 180 deseos</span>
+          <span id="percentage">0%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-fill" id="progress"></div>
+        </div>
+        <div class="progress-top bottom">
+          <span id="missing">Faltan 0 💎</span>
+          <span id="days">0 días</span>
+        </div>
+      </section>
+
+      <section class="daily-card">
+        <div class="daily-label">🎯 Cuota diaria actual</div>
+        <div class="daily-number" id="daily">0 💎</div>
+        <div class="daily-info" id="daily-info">Calculando...</div>
+      </section>
+
+      <section class="today-card">
+        <div>
+          <div class="daily-label">📅 Ganado hoy</div>
+          <div class="today-number" id="earned-today">0 💎</div>
+        </div>
+        <div>
+          <div class="daily-label">📉 Falta hoy</div>
+          <div class="today-number" id="remaining-today">0 💎</div>
+        </div>
+      </section>
+
+      <section class="advantage">
+        <div class="adv-card">
+          <small>🔥 Adelanto / déficit</small>
+          <strong id="surplus">0</strong>
+        </div>
+        <div class="adv-card">
+          <small>📊 Cuota base</small>
+          <strong id="base-quota">0</strong>
+        </div>
+        <div class="adv-card">
+          <small>🚀 Días adelantados</small>
+          <strong id="ahead">0 días</strong>
+        </div>
+      </section>
+
+      <section class="guarantee">
+        <div class="g-card">
+          <small>🛡️ Protos para garantía</small>
+          <strong id="guarantee">0 deseos</strong>
+        </div>
+        <div class="g-card">
+          <small>🏦 Reserva meta</small>
+          <strong id="reserve-label">180 deseos</strong>
+        </div>
+      </section>
+
+      <section class="actions">
+        <button class="btn primary" id="btn-add">✨ Registrar saldo actual</button>
+        <button class="btn secondary" id="btn-config">⚙️ Configuración</button>
+        <button class="btn secondary" id="btn-pity">⭐ Actualizar pity</button>
+        <button class="btn secondary" id="btn-close-day">📅 Cerrar día</button>
+        <button class="btn secondary" id="btn-undo">↩️ Deshacer último registro</button>
+        <button class="btn secondary" id="btn-export">💾 Exportar datos</button>
+        <button class="btn secondary" id="btn-import">📥 Importar datos</button>
+        <button class="btn danger" id="btn-reset">🗑️ Reiniciar</button>
+        <input type="file" id="import-file" accept=".json,application/json" hidden>
+      </section>
+
+      <section class="history">
+        <div class="history-title">📜 Historial</div>
+        <div class="history-list" id="history-list"></div>
+      </section>
+
+      <p class="storage-note">
+        💾 Tus datos se guardan automáticamente en la base de datos local del navegador (IndexedDB).
+      </p>
+    </main>
+  </div>
+
+  <!-- REGISTRAR SALDO -->
+  <div class="modal" id="modal-add">
+    <div class="modal-box">
+      <h2>✨ Registrar saldo actual</h2>
+      <p class="modal-help">
+        Escribe cuántas protogemas tienes <b>ahora mismo</b>. La app comparará ese número
+        con tu saldo anterior y calculará automáticamente lo ganado.
+      </p>
+      <div class="balance-preview">
+        Saldo anterior: <strong id="previous-balance">0 💎</strong>
+      </div>
+      <div class="form">
+        <label for="input-protos">Protogemas actuales</label>
+        <input type="number" id="input-protos" min="0" step="1" inputmode="numeric" placeholder="Ej: 350">
+      </div>
+      <div class="delta-preview" id="delta-preview">Introduce tu saldo para calcular la diferencia.</div>
+      <div class="modal-actions">
+        <button class="btn secondary close-modal" data-modal="modal-add">Cancelar</button>
+        <button class="btn primary" id="save-add">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIG -->
+  <div class="modal" id="modal-config">
+    <div class="modal-box">
+      <h2>⚙️ Configuración</h2>
+      <div class="form">
+        <label for="cfg-name">Personaje objetivo</label>
+        <input type="text" id="cfg-name" placeholder="Tsaritza">
+      </div>
+      <div class="form">
+        <label for="cfg-protos">Protogemas actuales</label>
+        <input type="number" id="cfg-protos" min="0" step="1" inputmode="numeric">
+      </div>
+      <div class="form">
+        <label for="cfg-wishes">Deseos actuales</label>
+        <input type="number" id="cfg-wishes" min="0" step="1" inputmode="numeric">
+      </div>
+      <div class="form">
+        <label for="cfg-goal">Meta</label>
+        <select id="cfg-goal">
+          <option value="169">169 — Garantía práctica</option>
+          <option value="180">180 — Reserva máxima</option>
+        </select>
+      </div>
+      <div class="form">
+        <label for="cfg-date">Fecha objetivo</label>
+        <input type="date" id="cfg-date">
+      </div>
+      <div class="modal-actions">
+        <button class="btn secondary close-modal" data-modal="modal-config">Cancelar</button>
+        <button class="btn primary" id="save-config">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PITY -->
+  <div class="modal" id="modal-pity">
+    <div class="modal-box">
+      <h2>⭐ Actualizar Pity</h2>
+      <div class="form">
+        <label for="input-pity">Pity actual</label>
+        <input type="number" id="input-pity" min="0" max="89" step="1" inputmode="numeric">
+      </div>
+      <div class="form">
+        <label for="input-guaranteed">Estado del próximo 5★</label>
+        <select id="input-guaranteed">
+          <option value="false">50/50</option>
+          <option value="true">Garantizado</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn secondary close-modal" data-modal="modal-pity">Cancelar</button>
+        <button class="btn primary" id="save-pity">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js")
+          .catch(error => console.error("Service Worker:", error));
+      });
+    }
+  </script>
+</body>
+</html>
